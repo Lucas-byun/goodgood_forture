@@ -494,12 +494,12 @@ const IMG_MAP = {
   bio_emo:'images/group2_icon.png',
   bio_phy:'images/group2_icon.png',
   bio_int:'images/group2_icon.png',
-  star:'images/group3_icon.png',
-  star28:'images/group3_icon.png',
-  lifepath:'images/group3_icon.png',
-  tarot:'images/group3_icon.png',
-  moon:'images/group3_icon.png',
-  jeolgi:'images/group3_icon.png',
+  star:'images/group2_icon.png',
+  star28:'images/group2_icon.png',
+  lifepath:'images/group2_icon.png',
+  tarot:'images/group2_icon.png',
+  moon:'images/group2_icon.png',
+  jeolgi:'images/group2_icon.png',
   money:'images/group4_icon.png',
   relation:'images/group4_icon.png'
 };
@@ -685,10 +685,16 @@ function goMain(){
   const indicatorImg=document.getElementById('indicator-image');
   const matchedImg=IMG_MAP[winnerId];
   if(matchedImg){
+    // 이미지 파일이 깨졌거나 없을 때 기본 이미지로 자동 대체
+    indicatorImg.onerror=()=>{
+      indicatorImg.onerror=null;
+      indicatorImg.src='images/IMG_2574.png';
+    };
     indicatorImg.src=matchedImg;
     indicatorImg.style.display='block';
     document.querySelector('.fortune-card').classList.add('image-mode');
   }else{
+    indicatorImg.onerror=null;
     indicatorImg.style.display='none';
     document.querySelector('.fortune-card').classList.remove('image-mode');
   }
