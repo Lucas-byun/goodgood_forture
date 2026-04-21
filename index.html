@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>굿굿포츈</title>
+<title>굿굿포춘</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 .app-shell{max-width:390px;margin:0 auto;background:var(--color-background-secondary, #f5f5f5);border-radius:20px;border:0.5px solid #ddd;overflow:hidden;min-height:640px;}
@@ -13,7 +13,8 @@
 
 /* Onboarding */
 .ob-body{flex:1;padding:24px 22px 20px;display:flex;flex-direction:column;gap:16px;}
-.ob-icon{font-size:34px;text-align:center;}
+.ob-icon{display:flex;justify-content:center;}
+.ob-logo{width:132px;height:132px;border-radius:22px;object-fit:cover;object-position:center top;box-shadow:0 4px 14px rgba(0,0,0,.08);}
 .ob-title{font-size:21px;font-weight:500;color:#111;text-align:center;margin-top:2px;}
 .ob-sub{font-size:13px;color:#666;text-align:center;line-height:1.6;}
 .field-group{display:flex;flex-direction:column;gap:5px;}
@@ -46,7 +47,8 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
   gap:9px;
 }
 .card-badge{font-size:11px;font-weight:500;padding:3px 11px;background:#EEEDFE;color:#534AB7;border-radius:99px;}
-.animal-circle{width:68px;height:68px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:30px;}
+.animal-circle{width:96px;height:96px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px;}
+.animal-img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .fortune-copy{width:100%;background:rgba(255,255,255,0.85);border:0.5px solid #e9e6ff;border-radius:12px;padding:10px 12px;}
 .fortune-text{font-size:14px;line-height:1.75;color:#111;text-align:center;}
 .lucky-items{width:100%;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;border-top:0.5px solid #ddd;padding-top:11px;}
@@ -73,10 +75,11 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
 
 /* 지표 아이콘 스타일 */
 .ind-icon{
-  width:14px;
-  height:14px;
-  vertical-align:middle;
-  object-fit:contain;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  object-fit:cover;
+  flex-shrink:0;
 }
 
 /* Actions */
@@ -149,8 +152,8 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
     <div class="status-bar"><span>9:41</span><span>100%</span></div>
     <div class="ob-body">
       <div>
-        <div class="ob-icon">🔮</div>
-        <div class="ob-title">굿굿포츈</div>
+        <div class="ob-icon"><img src="images/IMG_2574.png" alt="굿굿포춘 로고" class="ob-logo"></div>
+        <div class="ob-title">굿굿포춘</div>
         <p class="ob-sub" style="margin-top:5px;">나쁜 운세는 없어요.<br>오늘 가장 유리한 지표 하나만 보여드려요.</p>
       </div>
       <div class="field-group">
@@ -179,12 +182,12 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
   <div class="screen" id="screen-main">
     <div class="status-bar"><span>9:41</span><span>100%</span></div>
     <div class="main-header">
-      <span class="app-name">🔮 굿굿포츈</span>
+      <span class="app-name">굿굿포춘</span>
       <span class="header-date" id="today-date"></span>
     </div>
     <div class="fortune-card">
       <div class="card-badge" id="badge-text"></div>
-      <div class="animal-circle" id="animal-icon">🐱</div>
+      <div class="animal-circle" id="animal-icon"></div>
       <div class="fortune-copy">
         <p class="fortune-text" id="fortune-main"></p>
       </div>
@@ -607,7 +610,27 @@ const FORTUNE_MAP={
   action:  {badge:'행동 추천',                 text:'',                                                                                                       color:'주황', keyword:'행동',  animal:'🎯'},
 };
 
-const GROUP_EMOJI={1:'🟣',2:'🟢',3:'🟠',4:'🔴'};
+const GROUP_ICON_MAP={1:'images/group1_icon.png',2:'images/group2_icon.png',3:'images/group3_icon.png',4:'images/group4_icon.png'};
+
+const ANIMAL_IMAGE_MAP={
+  saju_il:'images/group1_icon.png',
+  saju_si:'images/group1_icon.png',
+  ddi:'images/group4_icon.png',
+  bio_emo:'images/group2_icon.png',
+  bio_phy:'images/group2_icon.png',
+  bio_int:'images/group2_icon.png',
+  star:'images/group2_icon.png',
+  star28:'images/group2_icon.png',
+  lifepath:'images/IMG_2574.png',
+  tarot:'images/group4_icon.png',
+  moon:'images/group1_icon.png',
+  jeolgi:'images/group3_icon.png',
+  money:'images/group4_icon.png',
+  relation:'images/group4_icon.png',
+  time:'images/golden_time.png',
+  action:'images/action_rec.png'
+};
+
 
 function calcBio(bd){
   const days=Math.floor((new Date()-new Date(bd))/86400000);
@@ -707,7 +730,7 @@ function buildIndicators(scores,winnerId){
     if(def.genderTag)tags.push('<span class="ind-tag">성별 적용</span>');
     if(def.timeTag)tags.push('<span class="ind-tag" style="background:#E1F5EE;color:#0F6E56;">시간 필요</span>');
     card.innerHTML=`
-      <div class="ind-name"><span aria-hidden="true">${GROUP_EMOJI[def.group]||'✨'}</span>${def.name}</div>
+      <div class="ind-name"><img class="ind-icon" src="${GROUP_ICON_MAP[def.group]||'images/group1_icon.png'}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';"><span aria-hidden="true" style="display:none;">✨</span>${def.name}</div>
       <div class="ind-bar-bg"><div class="ind-bar-fill" style="width:0%;background:${isW?'#7F77DD':def.color}" data-w="${s}"></div></div>
       <div class="ind-bottom">
         <span class="ind-score">${s}</span>
@@ -831,7 +854,8 @@ function goMain(){
   document.getElementById('lucky-color').textContent=chosen.color;
   document.getElementById('lucky-keyword').textContent=chosen.keyword;
   document.getElementById('lucky-score').textContent=validScores[winnerId];
-  document.getElementById('animal-icon').textContent=chosen.animal;
+  const animalSrc=ANIMAL_IMAGE_MAP[winnerId]||'images/IMG_2574.png';
+  document.getElementById('animal-icon').innerHTML=`<img src="${animalSrc}" alt="${chosen.keyword} 아이콘" class="animal-img" onerror="this.src='images/IMG_2574.png'">`;
   saveStats(winnerId,bd,gender);
 
   // 상위 3개 지표 표시
