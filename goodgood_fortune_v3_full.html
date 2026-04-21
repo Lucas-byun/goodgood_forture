@@ -1,0 +1,708 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+.app-shell{max-width:390px;margin:0 auto;background:var(--color-background-secondary);border-radius:var(--border-radius-xl);border:0.5px solid var(--color-border-tertiary);overflow:hidden;min-height:640px;}
+.screen{display:none;flex-direction:column;min-height:640px;}
+.screen.active{display:flex;}
+.status-bar{display:flex;justify-content:space-between;padding:10px 20px 4px;font-size:12px;font-weight:500;color:var(--color-text-secondary);}
+
+/* Onboarding */
+.ob-body{flex:1;padding:24px 22px 20px;display:flex;flex-direction:column;gap:16px;}
+.ob-icon{font-size:34px;text-align:center;}
+.ob-title{font-size:21px;font-weight:500;color:var(--color-text-primary);text-align:center;margin-top:2px;}
+.ob-sub{font-size:13px;color:var(--color-text-secondary);text-align:center;line-height:1.6;}
+.field-group{display:flex;flex-direction:column;gap:5px;}
+.field-label{font-size:13px;color:var(--color-text-secondary);}
+.field-opt{font-size:11px;color:var(--color-text-tertiary);margin-left:4px;}
+input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);}
+.gender-row{display:flex;gap:8px;}
+.gender-btn{flex:1;padding:9px 0;font-size:14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;text-align:center;transition:all .15s;}
+.gender-btn.sel{background:#EEEDFE;color:#534AB7;border-color:#7F77DD;font-weight:500;}
+.tip-box{background:var(--color-background-info);border-radius:var(--border-radius-md);padding:9px 13px;font-size:12px;color:var(--color-text-info);line-height:1.6;}
+.btn-primary{width:100%;padding:13px;background:#533AB7;color:white;border:none;border-radius:var(--border-radius-lg);font-size:16px;font-weight:500;cursor:pointer;}
+.btn-primary:hover{opacity:.88;}
+.btn-primary:active{transform:scale(.98);}
+
+/* Main header */
+.main-header{padding:12px 18px 8px;display:flex;justify-content:space-between;align-items:center;}
+.app-name{font-size:15px;font-weight:500;color:var(--color-text-primary);}
+.header-date{font-size:13px;color:var(--color-text-secondary);}
+
+/* Fortune card */
+.fortune-card{
+  margin:0 14px;
+  /* 배경 이미지를 적용하여 운세 카드의 분위기를 개선 */
+  background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('images/fortune_bg.png');
+  background-size: cover;
+  background-position: center;
+  border-radius:var(--border-radius-xl);
+  border:0.5px solid var(--color-border-tertiary);
+  padding:18px 18px 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:9px;
+}
+.card-badge{font-size:11px;font-weight:500;padding:3px 11px;background:#EEEDFE;color:#534AB7;border-radius:99px;}
+.animal-circle{width:68px;height:68px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:30px;}
+.fortune-text{font-size:14px;line-height:1.75;color:var(--color-text-primary);text-align:center;}
+.lucky-items{width:100%;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;border-top:0.5px solid var(--color-border-tertiary);padding-top:11px;}
+.lucky-pill{font-size:11px;padding:3px 9px;border-radius:99px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);}
+.lucky-pill span{color:var(--color-text-primary);font-weight:500;}
+
+/* Indicator grid */
+.ind-section{padding:12px 14px 0;}
+.section-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.section-title{font-size:13px;color:var(--color-text-secondary);}
+.btn-guide{font-size:11px;padding:3px 10px;border:0.5px solid var(--color-border-secondary);border-radius:99px;background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;}
+.btn-guide:hover{background:var(--color-background-secondary);}
+.ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.ind-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:9px 11px;}
+.ind-card.winner{border-color:#7F77DD;background:#EEEDFE;}
+.ind-name{font-size:10px;color:var(--color-text-secondary);margin-bottom:3px;}
+.ind-card.winner .ind-name{color:#534AB7;}
+.ind-bar-bg{height:4px;background:var(--color-border-tertiary);border-radius:99px;overflow:hidden;margin-bottom:4px;}
+.ind-bar-fill{height:100%;border-radius:99px;transition:width .9s ease;}
+.ind-bottom{display:flex;justify-content:space-between;align-items:center;}
+.ind-score{font-size:12px;font-weight:500;color:var(--color-text-primary);}
+.ind-card.winner .ind-score{color:#534AB7;}
+.ind-tag{font-size:9px;padding:1px 5px;border-radius:99px;background:#EEEDFE;color:#534AB7;}
+
+/* 지표 아이콘 스타일 */
+.ind-icon{
+  width:14px;
+  height:14px;
+  margin-right:4px;
+  vertical-align:middle;
+}
+
+/* Actions */
+.action-row{display:flex;gap:8px;padding:10px 14px 0;}
+.btn-action{flex:1;padding:9px 0;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);font-size:12px;color:var(--color-text-secondary);cursor:pointer;text-align:center;}
+.btn-action:hover{background:var(--color-background-secondary);}
+
+/* Calendar */
+.cal-section{padding:10px 14px 8px;}
+.cal-title{font-size:13px;color:var(--color-text-secondary);margin-bottom:7px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-cell{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-tertiary);}
+.cal-cell.good{background:#EEEDFE;color:#534AB7;font-weight:500;}
+.cal-cell.today{background:#533AB7;color:white;font-weight:500;}
+.cal-cell.past{opacity:.35;}
+
+/* Nav */
+.nav-bar{margin-top:auto;border-top:0.5px solid var(--color-border-tertiary);display:flex;padding:9px 0 11px;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--color-text-tertiary);cursor:pointer;}
+.nav-item.active{color:#534AB7;}
+.nav-icon{width:19px;height:19px;display:flex;align-items:center;justify-content:center;}
+
+/* Guide screen */
+.guide-header{padding:12px 18px 8px;display:flex;align-items:center;gap:10px;}
+.guide-back{background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:20px;line-height:1;}
+.guide-title{font-size:15px;font-weight:500;color:var(--color-text-primary);}
+.guide-body{flex:1;padding:0 14px 16px;overflow-y:auto;}
+.guide-group-title{font-size:11px;color:var(--color-text-tertiary);font-weight:500;letter-spacing:.04em;margin:14px 0 7px;padding-left:2px;}
+.guide-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:7px;}
+.guide-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;}
+.guide-card-name{font-size:13px;font-weight:500;color:var(--color-text-primary);}
+.guide-card-tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.gtag{font-size:10px;padding:2px 7px;border-radius:99px;}
+.gtag-input{background:#E1F5EE;color:#0F6E56;}
+.gtag-gender{background:#EEEDFE;color:#534AB7;}
+.guide-card-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.65;}
+.guide-divider{height:0.5px;background:var(--color-border-tertiary);margin:6px 0;}
+.guide-calc{font-size:11px;color:var(--color-text-tertiary);line-height:1.6;margin-top:5px;}
+
+/* Archive */
+.archive-body{flex:1;padding:14px;}
+.archive-month{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;}
+.archive-item{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:9px 11px;margin-bottom:7px;display:flex;align-items:center;gap:9px;}
+.archive-date{font-size:12px;color:var(--color-text-secondary);width:32px;flex-shrink:0;}
+.archive-text{flex:1;font-size:12px;color:var(--color-text-primary);line-height:1.5;}
+.archive-reaction{font-size:13px;}
+.archive-badge{font-size:10px;padding:2px 7px;border-radius:99px;background:#EEEDFE;color:#534AB7;flex-shrink:0;}
+</style>
+
+<h2 class="sr-only">굿굿포츈 v3 — 11가지 지표 전체 포함, 각 지표 설명 가이드 화면 데모</h2>
+
+<div class="app-shell">
+
+  <!-- ── ONBOARDING ── -->
+  <div class="screen active" id="screen-onboard">
+    <div class="status-bar"><span>9:41</span><span>100%</span></div>
+    <div class="ob-body">
+      <div>
+        <div class="ob-icon">🔮</div>
+        <div class="ob-title">굿굿포츈</div>
+        <p class="ob-sub" style="margin-top:5px;">나쁜 운세는 없어요.<br>오늘 가장 유리한 지표 하나만 보여드려요.</p>
+      </div>
+      <div class="field-group">
+        <label class="field-label">생년월일 <span style="color:#E24B4A;font-size:11px;">필수</span></label>
+        <input type="date" id="birthdate" value="1987-05-14"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">성별 <span style="color:#E24B4A;font-size:11px;">필수</span><span class="field-opt">— 사주 대운 방향 계산에 사용</span></label>
+        <div class="gender-row">
+          <button class="gender-btn sel" id="btn-male" onclick="selectGender('male')">남성</button>
+          <button class="gender-btn" id="btn-female" onclick="selectGender('female')">여성</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">태어난 시간<span class="field-opt">선택 — 사주 시주 계산에 사용</span></label>
+        <input type="time" id="birthtime" value="08:30"/>
+      </div>
+      <div class="tip-box">
+        생년월일만으로 <strong>10가지</strong> 지표를 분석하고, 태어난 시간까지 입력하면 사주 시주 포함 <strong>14가지</strong> 지표 전체를 분석해요.<br>성별은 사주 대운의 흐름 방향(남성 순행·여성 역행)을 계산하는 데 사용돼요.
+      </div>
+      <button class="btn-primary" onclick="goMain()">오늘의 좋은 운세 보기</button>
+    </div>
+  </div>
+
+  <!-- ── MAIN ── -->
+  <div class="screen" id="screen-main">
+    <div class="status-bar"><span>9:41</span><span>100%</span></div>
+    <div class="main-header">
+      <span class="app-name">🔮 굿굿포츈</span>
+      <span class="header-date" id="today-date"></span>
+    </div>
+    <div class="fortune-card">
+      <div class="card-badge" id="badge-text"></div>
+      <div class="animal-circle" id="animal-icon">🐱</div>
+      <p class="fortune-text" id="fortune-main"></p>
+      <div class="lucky-items">
+        <div class="lucky-pill">행운의 색 <span id="lucky-color"></span></div>
+        <div class="lucky-pill">키워드 <span id="lucky-keyword"></span></div>
+        <div class="lucky-pill">최고 점수 <span id="lucky-score"></span></div>
+      </div>
+      <!-- 상위 3개 지표를 표시할 영역 -->
+      <div id="top-three" style="width:100%;margin-top:6px;
+        border-top:0.5px solid var(--color-border-tertiary);padding-top:6px;"></div>
+      <!-- 지표별 이미지 (황금시간/행동 추천 등) -->
+      <img id="indicator-image" style="width:100%;border-radius:var(--border-radius-md);margin-top:6px;display:none;"/>
+    </div>
+    <div class="ind-section">
+      <div class="section-row">
+        <span class="section-title">오늘의 지표 분석 <span style="font-size:11px;color:var(--color-text-tertiary);" id="ind-count-label"></span></span>
+        <button class="btn-guide" onclick="goGuide()">각 지표 설명 보기 →</button>
+      </div>
+      <div class="ind-grid" id="ind-grid"></div>
+    </div>
+    <div class="action-row">
+      <button class="btn-action" onclick="alert('실제 앱에서는 카카오톡으로 공유돼요! 📲')">카카오톡 공유</button>
+      <button class="btn-action" onclick="goArchive()">행운 아카이브</button>
+    </div>
+    <div class="cal-section">
+      <p class="cal-title">이달의 좋은 날 <span style="font-size:10px;background:#EEEDFE;color:#534AB7;padding:2px 7px;border-radius:99px;margin-left:3px;">프리미엄</span></p>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+    <nav class="nav-bar">
+      <div class="nav-item active" onclick="goMain()">
+        <div class="nav-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>오늘
+      </div>
+      <div class="nav-item" onclick="goGuide()">
+        <div class="nav-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>지표 안내
+      </div>
+      <div class="nav-item" onclick="goArchive()">
+        <div class="nav-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>아카이브
+      </div>
+      <div class="nav-item" onclick="goOnboard()">
+        <div class="nav-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>내 정보
+      </div>
+    </nav>
+  </div>
+
+  <!-- ── GUIDE ── -->
+  <div class="screen" id="screen-guide">
+    <div class="status-bar"><span>9:41</span><span>100%</span></div>
+    <div class="guide-header">
+      <button class="guide-back" onclick="goMain()">‹</button>
+      <span class="guide-title">지표 안내 — 15가지</span>
+    </div>
+    <div class="guide-body">
+
+      <p class="guide-group-title">🥇 1순위 — 생년월일 + 태어난 시 (개인화 최고)</p>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">🀄 사주팔자 일주</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일</span><span class="gtag gtag-gender">성별</span></div>
+        </div>
+        <p class="guide-card-desc">태어난 연·월·일·시의 천간지지 8글자로 사람의 기운을 분석하는 동양 전통 명리학이에요. 오늘의 일진과 나의 일주(日柱)가 서로 합이 되는지, 충돌하는지를 계산해요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : 태어난 해의 천간지지 → 오늘 일진과 합·충 조합 점수화. 성별에 따라 대운(大運) 흐름 방향이 남성은 순행(+), 여성은 역행(-)으로 반대로 계산돼요.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">🀄 사주팔자 시주</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일+시간</span><span class="gtag gtag-gender">성별</span></div>
+        </div>
+        <p class="guide-card-desc">사주 네 기둥 중 태어난 시(時)로 결정되는 시주(時柱)예요. 시주까지 있어야 완전한 사주팔자가 완성돼요. 시간을 입력하지 않으면 이 지표는 제외돼요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : 태어난 시각을 12지 시(子~亥)로 변환 → 오늘 시간대 기운과 조합 점수화.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">🐉 띠운세</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">태어난 해</span></div>
+        </div>
+        <p class="guide-card-desc">12간지(쥐·소·호랑이…돼지) 사이클로 결정되는 나의 띠와 오늘 날짜의 간지가 얼마나 잘 맞는지 계산해요. 한국, 중국, 일본 등 동양 문화권에서 널리 사용되는 지표예요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : (태어난 해 − 4) ÷ 12의 나머지로 12지 결정 → 오늘 간지와 상생·상극 관계 조회.</p>
+      </div>
+
+      <p class="guide-group-title">🥈 2순위 — 생년월일만 입력</p>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">📊 바이오리듬 감성</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일</span></div>
+        </div>
+        <p class="guide-card-desc">태어난 날부터 오늘까지의 일수로 감성 에너지 주기를 계산해요. 28일 주기의 사인 곡선으로 나타나며, 피크에서는 감정이 풍부해지고 대인 관계가 활발해지는 경향이 있어요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : sin(2π × 경과일수 / 28) → -1~+1 범위를 0~100점으로 변환.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">📊 바이오리듬 신체</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일</span></div>
+        </div>
+        <p class="guide-card-desc">23일 주기의 신체 에너지 사이클이에요. 피크 시기에는 체력과 운동 능력이 올라가고, 저점에서는 컨디션 관리가 필요해요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : sin(2π × 경과일수 / 23) → 0~100점 변환.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">📊 바이오리듬 지성</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일</span></div>
+        </div>
+        <p class="guide-card-desc">33일 주기의 지적 에너지 사이클이에요. 피크에서는 집중력·분석력·창의력이 높아지는 경향이 있어요. 세 바이오리듬 중 주기가 가장 길어요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : sin(2π × 경과일수 / 33) → 0~100점 변환.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">♈ 별자리 (서양)</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일</span></div>
+        </div>
+        <p class="guide-card-desc">생년월일로 12별자리(양자리~물고기자리)가 결정돼요. 오늘 날짜·계절·행성 배치를 반영한 별자리별 운세 점수를 계산해요. 서양 점성술의 가장 기본적인 지표예요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : 생일 월·일로 별자리 결정 → 오늘 날짜 기준 운세 점수 룩업 테이블 조회.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">🌟 동양 별자리 (28수)</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일</span></div>
+        </div>
+        <p class="guide-card-desc">동양 천문학에서 하늘을 28개 구역으로 나눈 28수(宿)예요. 생년월일로 나의 수(宿)가 결정되고, 오늘 날짜의 수와 상성이 맞는지 계산해요. 서양 별자리보다 섬세한 동양식 점성술이에요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : 태어난 날의 음력 환산 → 28수 사이클로 나의 수 결정 → 오늘 수와 길흉 조합 조회.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">🔢 수명수 (Life Path)</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일</span></div>
+        </div>
+        <p class="guide-card-desc">생년월일의 모든 숫자를 더해 한 자리 숫자가 될 때까지 반복 합산해요. 이 숫자가 나의 평생 에너지 번호예요. 오늘 날짜의 수와 조화를 이루는지 계산해요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">예시 : 1987-05-14 → 1+9+8+7+0+5+1+4 = 35 → 3+5 = 8 (수명수 8번). 오늘 날짜 수와의 차이로 궁합 점수 산출.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">🃏 타로 Birth Card</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일</span></div>
+        </div>
+        <p class="guide-card-desc">생년월일로 결정되는 평생 타로 카드예요. 메이저 아르카나 22장 중 하나가 나의 본질 카드가 돼요. 오늘 날짜의 카드와 에너지가 잘 맞는지 계산해요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : 생년월일 합산 → 22로 나눈 나머지로 메이저 아르카나 배정 → 오늘 날짜 카드와 조합 점수화.</p>
+      </div>
+
+      <p class="guide-group-title">🥉 3순위 — 오늘 날짜 기반 (보조 지표)</p>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">🌙 달의 위상</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">오늘 날짜</span></div>
+        </div>
+        <p class="guide-card-desc">달의 29.53일 주기 중 오늘이 어느 위상인지 계산해요. 초승달~상현달 구간은 성장과 시작의 에너지, 보름달은 완성과 절정, 하현달~그믐달은 마무리와 내면 에너지가 강해요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : 2000년 1월 6일(기준 신월) 대비 경과일 ÷ 29.53 → 위상 0~1 결정 → 구간별 점수 매핑.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">🍃 절기·음력</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">오늘 날짜</span></div>
+        </div>
+        <p class="guide-card-desc">한국 특화 지표예요. 24절기(입춘·춘분·하지·동지 등)와 음력 날짜의 기운을 반영해요. 절기 전환점 전후는 에너지 변화의 시기로, 특정 음력 날짜는 전통적으로 길일로 여겨져요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : 오늘 양력을 음력으로 환산 → 24절기 거리 계산 → 전통 길흉일 테이블 조회 후 점수화.</p>
+      </div>
+
+      <!-- 새롭게 추가된 지표들 안내 -->
+      <p class="guide-group-title">🎯 새로운 지표 — 운세+행동 지표</p>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">💰 금전운</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일 & 오늘</span></div>
+        </div>
+        <p class="guide-card-desc">재정과 돈의 흐름을 종합해 보여주는 지표예요. 별자리, 수명수, 타로, 지성 바이오리듬을 활용해 오늘의 재물 흐름을 점수화해요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : star, lifepath, tarot, bio_int 점수를 평균내어 0~100점 산출.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">👥 관계운</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">생년월일 & 오늘</span></div>
+        </div>
+        <p class="guide-card-desc">감성 바이오리듬, 별자리, 타로를 결합해 오늘의 인간관계 흐름을 알려줘요. 인연을 맺거나 대화를 시작하기 좋은 날인지 판단하는 데 도움을 줘요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : bio_emo, star, tarot 점수를 평균내어 0~100점 산출.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">⌚ 황금 시간대</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">오늘 날짜</span></div>
+        </div>
+        <p class="guide-card-desc">하루 중 행운이 집중되는 2시간 구간을 알려줘요. 날짜와 월에 따라 매일 달라지며, 이 시간에 중요한 일을 시도하면 좋은 결과를 얻을 수 있어요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : (오늘의 일 + 월) 값을 9개의 시간 구간 배열 길이로 나눈 나머지로 구간 선택.</p>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-top">
+          <span class="guide-card-name">🎯 행동 추천</span>
+          <div class="guide-card-tags"><span class="gtag gtag-input">오늘 날짜</span></div>
+        </div>
+        <p class="guide-card-desc">오늘 해야 할 일과 피해야 할 일을 제안해요. 랜덤 요소가 포함돼 매일 다른 행동 지침을 제공하며, 운세 외에도 삶의 리듬을 정리하는 데 도움이 돼요.</p>
+        <div class="guide-divider"></div>
+        <p class="guide-calc">계산법 : 고정된 추천/회피 목록 중 무작위 선택.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── ARCHIVE ── -->
+  <div class="screen" id="screen-archive">
+    <div class="status-bar"><span>9:41</span><span>100%</span></div>
+    <div class="main-header"><span class="app-name">행운 아카이브</span></div>
+    <div class="archive-body">
+      <p class="archive-month">2026년 4월</p>
+      <div class="archive-item"><span class="archive-date">4/20</span><span class="archive-text">대인관계 흐름이 부드럽게 풀리는 날이에요</span><span class="archive-reaction">👍</span><span class="archive-badge">별자리</span></div>
+      <div class="archive-item"><span class="archive-date">4/19</span><span class="archive-text">새로운 시작에 에너지가 실리는 날이에요</span><span class="archive-reaction">👍</span><span class="archive-badge">달의 위상</span></div>
+      <div class="archive-item"><span class="archive-date">4/18</span><span class="archive-text">조용히 내면을 돌보기 좋은 날이에요</span><span class="archive-reaction">👎</span><span class="archive-badge">절기</span></div>
+      <div class="archive-item"><span class="archive-date">4/17</span><span class="archive-text">감정 에너지가 올라가는 날이에요</span><span class="archive-reaction">👍</span><span class="archive-badge">바이오리듬</span></div>
+      <div class="archive-item"><span class="archive-date">4/16</span><span class="archive-text">집중력이 좋아지는 날, 중요한 일에 적합해요</span><span class="archive-reaction">👍</span><span class="archive-badge">사주</span></div>
+    </div>
+    <nav class="nav-bar">
+      <div class="nav-item" onclick="goMain()">
+        <div class="nav-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>오늘
+      </div>
+      <div class="nav-item" onclick="goGuide()">
+        <div class="nav-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>지표 안내
+      </div>
+      <div class="nav-item active" onclick="goArchive()">
+        <div class="nav-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>아카이브
+      </div>
+      <div class="nav-item" onclick="goOnboard()">
+        <div class="nav-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>내 정보
+      </div>
+    </nav>
+  </div>
+
+</div>
+
+<script>
+let selectedGender='male';
+function selectGender(g){
+  selectedGender=g;
+  document.getElementById('btn-male').classList.toggle('sel',g==='male');
+  document.getElementById('btn-female').classList.toggle('sel',g==='female');
+}
+
+const INDICATORS=[
+  {key:'saju_il',  name:'사주 일주',      color:'#534AB7', group:1, genderTag:true,  timeTag:false},
+  {key:'saju_si',  name:'사주 시주',      color:'#7F77DD', group:1, genderTag:true,  timeTag:true },
+  {key:'ddi',      name:'띠운세',         color:'#D85A30', group:1, genderTag:false, timeTag:false},
+  {key:'bio_emo',  name:'바이오 감성',    color:'#7F77DD', group:2, genderTag:false, timeTag:false},
+  {key:'bio_phy',  name:'바이오 신체',    color:'#1D9E75', group:2, genderTag:false, timeTag:false},
+  {key:'bio_int',  name:'바이오 지성',    color:'#BA7517', group:2, genderTag:false, timeTag:false},
+  {key:'star',     name:'별자리(서양)',   color:'#1D9E75', group:2, genderTag:false, timeTag:false},
+  {key:'star28',   name:'28수(동양)',     color:'#0F6E56', group:2, genderTag:false, timeTag:false},
+  {key:'lifepath', name:'수명수',         color:'#BA7517', group:2, genderTag:false, timeTag:false},
+  {key:'tarot',    name:'타로 카드',      color:'#993556', group:2, genderTag:false, timeTag:false},
+  {key:'moon',     name:'달의 위상',      color:'#D85A30', group:3, genderTag:false, timeTag:false},
+  {key:'jeolgi',   name:'절기·음력',      color:'#3B6D11', group:3, genderTag:false, timeTag:false},
+  // 추가된 지표들 — 금전운, 관계운, 황금 시간대, 행동 추천
+  {key:'money',    name:'금전운',         color:'#D4A017', group:4, genderTag:false, timeTag:false},
+  {key:'relation', name:'관계운',         color:'#E53E3E', group:4, genderTag:false, timeTag:false},
+  {key:'time',     name:'황금 시간대',     color:'#319795', group:4, genderTag:false, timeTag:true},
+  {key:'action',   name:'행동 추천',       color:'#DD6B20', group:4, genderTag:false, timeTag:false},
+];
+
+const FORTUNE_MAP={
+  saju_il: {badge:'사주 일주 · 일진 합',      text:'오늘은 사주 일주와 일진이 잘 맞는 날이에요.\n중요한 만남이나 결정이 좋은 결과로 이어질 수 있어요.', color:'보라', keyword:'운세',  animal:'🐱'},
+  saju_si: {badge:'사주 시주 · 시간 에너지',  text:'오늘 이 시간대의 기운이 나의 사주와 잘 맞아요.\n지금 시작하는 일에 좋은 흐름이 실려요.',              color:'보라', keyword:'타이밍',animal:'🦊'},
+  ddi:     {badge:'띠운세 · 오늘 길일',        text:'오늘의 간지가 나의 띠와 상생 관계예요.\n자연스럽게 좋은 인연과 기회가 찾아오는 날이에요.',          color:'주황', keyword:'인연',  animal:'🐶'},
+  bio_emo: {badge:'바이오리듬 · 감성 피크',    text:'오늘은 감정 에너지가 올라가는 날이에요.\n사람을 만나면 좋은 흐름이 생길 수 있어요.',                  color:'보라', keyword:'연결',  animal:'🐱'},
+  bio_phy: {badge:'바이오리듬 · 신체 피크',    text:'오늘은 몸의 컨디션이 올라오는 날이에요.\n활동적으로 움직이면 에너지가 잘 실려요.',                    color:'초록', keyword:'활력',  animal:'🐶'},
+  bio_int: {badge:'바이오리듬 · 지성 피크',    text:'오늘은 집중력과 분석력이 높아지는 날이에요.\n중요한 결정이나 공부에 적합한 타이밍이에요.',              color:'파랑', keyword:'집중',  animal:'🦊'},
+  star:    {badge:'별자리 · 오늘 길일',        text:'오늘은 별자리 흐름이 좋은 날이에요.\n대인관계가 자연스럽게 풀리는 타이밍이에요.',                     color:'하늘', keyword:'소통',  animal:'🐻'},
+  star28:  {badge:'28수 · 동양 길성',          text:'오늘은 동양 별자리 흐름이 좋은 날이에요.\n차분히 집중하면 좋은 결과가 나오는 날이에요.',              color:'초록', keyword:'성취',  animal:'🐼'},
+  lifepath:{badge:'수명수 · 에너지 정렬',      text:'오늘은 내 에너지 번호와 날의 흐름이 잘 맞는 날이에요.\n계획하던 일을 추진하기 좋은 타이밍이에요.',    color:'노랑', keyword:'추진',  animal:'🐼'},
+  tarot:   {badge:'타로 · Birth Card 호응',    text:'오늘의 타로 에너지가 나의 본질 카드와 잘 맞아요.\n직관을 믿고 움직이면 좋은 흐름이 생겨요.',          color:'분홍', keyword:'직관',  animal:'🐰'},
+  moon:    {badge:'달의 위상 · 상승 에너지',   text:'오늘은 달의 흐름이 성장과 확장을 지지하고 있어요.\n새로운 시작에 에너지가 실리는 날이에요.',           color:'은빛', keyword:'시작',  animal:'🐰'},
+  jeolgi:  {badge:'절기·음력 · 길일',          text:'오늘은 전통 절기와 음력의 흐름이 좋은 날이에요.\n소중한 사람과 함께하면 더욱 좋은 날이에요.',         color:'녹색', keyword:'길일',  animal:'🐻'},
+  // 새로운 지표들의 기본 설명 (동적으로 업데이트될 수 있음)
+  money:   {badge:'금전운 · 재물 흐름', text:'오늘은 금전운이 상승하는 날이에요. 재정 계획을 세우고 투자를 준비해보세요.', color:'황금', keyword:'재물', animal:'🪙'},
+  relation:{badge:'관계운 · 인연 흐름', text:'오늘은 인간관계운이 좋아요. 주변 사람과의 소통에 신경쓰면 좋은 결과가 있어요.', color:'분홍', keyword:'관계', animal:'👥'},
+  time:    {badge:'황금 시간대',         text:'오늘의 황금 시간대를 활용하여 중요한 일을 시도해보세요.', color:'청록', keyword:'시간', animal:'⌚'},
+  action:  {badge:'행동 추천',          text:'오늘 필요한 행동을 참고하세요.', color:'주황', keyword:'행동', animal:'🎯'},
+};
+
+// 지표 그룹별 아이콘 매핑 (calm & cute 스타일 아이콘)
+const ICON_MAP = {
+  1:'images/group1_icon.png',
+  2:'images/group2_icon.png',
+  3:'images/group3_icon.png',
+  4:'images/group4_icon.png'
+};
+
+function calcBio(bd){
+  const days=Math.floor((new Date()-new Date(bd))/86400000);
+  return {
+    bio_emo:Math.round((Math.sin(2*Math.PI*days/28)+1)/2*100),
+    bio_phy:Math.round((Math.sin(2*Math.PI*days/23)+1)/2*100),
+    bio_int:Math.round((Math.sin(2*Math.PI*days/33)+1)/2*100),
+  };
+}
+function calcStar(bd){
+  const[,m,d]=bd.split('-').map(Number);const n=m*100+d;
+  const tbl=[[320,78],[420,85],[521,72],[621,68],[723,90],[823,75],[923,80],[1023,83],[1122,77],[1222,69],[120,74],[220,71]];
+  for(let i=tbl.length-1;i>=0;i--){if(n>=tbl[i][0])return tbl[i][1];}return 71;
+}
+function calcStar28(bd){
+  const days=Math.floor((new Date()-new Date(bd))/86400000);
+  return Math.round((Math.sin(2*Math.PI*days/28*28/28)+1)/2*100);
+}
+function calcLifePath(bd){
+  let s=bd.replace(/-/g,'').split('').reduce((a,b)=>a+Number(b),0);
+  while(s>9)s=String(s).split('').reduce((a,b)=>a+Number(b),0);
+  const t=new Date();
+  const ts=`${t.getFullYear()}${t.getMonth()+1}${t.getDate()}`.split('').reduce((a,b)=>a+Number(b),0)%9||9;
+  return Math.max(40,Math.min(96,100-Math.abs(s-ts)*10));
+}
+function calcTarot(bd){
+  const s=bd.replace(/-/g,'').split('').reduce((a,b)=>a+Number(b),0);
+  const card=s%22;
+  const t=new Date();
+  const ts=(`${t.getFullYear()}${t.getMonth()+1}${t.getDate()}`).split('').reduce((a,b)=>a+Number(b),0)%22;
+  return Math.max(42,Math.min(94,100-Math.abs(card-ts)*4));
+}
+function calcMoon(){
+  const days=(new Date()-new Date('2000-01-06'))/86400000;
+  const p=(days%29.53)/29.53;
+  if(p<0.1||p>0.9)return 55;if(p<0.25)return 82;if(p<0.5)return 70;if(p<0.75)return 76;return 60;
+}
+function calcJeolgi(){
+  const t=new Date();
+  const jeolgiDates=[1,19,35,51,67,83,99,115,133,149,165,181,197,213,229,245,261,277,293,309,325,341,357,373];
+  const doy=Math.floor((t-new Date(t.getFullYear(),0,0))/86400000);
+  const dist=Math.min(...jeolgiDates.map(j=>Math.abs(doy-j)));
+  return dist<=3?90:dist<=7?75:dist<=14?62:50;
+}
+function calcSaju(bd,gender,hasTime){
+  const[y]=bd.split('-').map(Number);
+  const hs=(y-4)%10; const eb=(y-4)%12;
+  const t=new Date();
+  const ths=(t.getFullYear()-4)%10; const teb=(t.getFullYear()-4)%12;
+  let base=100-(Math.abs(hs-ths)*6+Math.abs(eb-teb)*4);
+  const doy=Math.floor((t-new Date(t.getFullYear(),0,0))/86400000);
+  const gadj=gender==='male'?Math.sin(doy/60)*15:Math.cos(doy/60)*15;
+  const il=Math.max(42,Math.min(95,Math.round(base+gadj)));
+  const si=hasTime?Math.max(42,Math.min(95,Math.round(base+gadj+Math.sin(doy/10)*8))):null;
+  return{saju_il:il,saju_si:si};
+}
+function calcDdi(bd){
+  const[y]=bd.split('-').map(Number);
+  const myDdi=(y-4)%12;
+  const t=new Date();
+  const todayDdi=(t.getFullYear()-4)%12;
+  const sangSaeng=[[0,4],[0,8],[1,5],[1,9],[2,6],[2,10],[3,7],[3,11],[4,8],[5,9],[6,10],[7,11]];
+  const good=sangSaeng.some(([a,b])=>(myDdi===a&&todayDdi===b)||(myDdi===b&&todayDdi===a));
+  const diff=Math.abs(myDdi-todayDdi);
+  return good?88:diff===6?45:Math.max(50,80-diff*6);
+}
+
+// 금전운 계산: 별자리, 수명수, 타로, 지성 바이오리듬을 평균내어 산출한다
+function calcMoney(scores){
+  return Math.round((scores.star + scores.lifepath + scores.tarot + scores.bio_int)/4);
+}
+
+// 관계운 계산: 감성 바이오리듬, 별자리, 타로를 평균내어 산출한다
+function calcRelation(scores){
+  return Math.round((scores.bio_emo + scores.star + scores.tarot)/3);
+}
+
+// 오늘의 황금 시간대를 결정한다. 날짜와 월을 기반으로 6~24시 사이 2시간 단위 구간을 리턴한다
+function getLuckyTime(){
+  const segments=['06:00~08:00','08:00~10:00','10:00~12:00','12:00~14:00','14:00~16:00','16:00~18:00','18:00~20:00','20:00~22:00','22:00~24:00'];
+  const today=new Date();
+  const idx=(today.getDate()+today.getMonth())%segments.length;
+  return segments[idx];
+}
+
+// 오늘의 추천 행동과 피해야 할 행동을 반환한다
+function getAction(){
+  const actions=['새로운 프로젝트를 계획해보세요','중요한 사람에게 연락해보세요','지출 계획을 세워보세요','간단한 정리를 하며 머리를 비우세요','휴식과 재충전에 집중하세요','운동을 통해 에너지를 높여보세요','집중이 필요한 일을 시작하세요','추가 공부나 연구를 해보세요'];
+  const avoids=['큰 투자나 결정을 미루세요','중요한 대화를 피하세요','과소비를 조심하세요','감정적인 반응을 자제하세요'];
+  const aidx=Math.floor(Math.random()*actions.length);
+  const ridx=Math.floor(Math.random()*avoids.length);
+  return {do:actions[aidx], avoid:avoids[ridx]};
+}
+
+function buildIndicators(scores,winnerId){
+  const grid=document.getElementById('ind-grid');
+  grid.innerHTML='';
+  INDICATORS.forEach(def=>{
+    const s=scores[def.key];
+    if(s===null||s===undefined)return;
+    const isW=def.key===winnerId;
+    const card=document.createElement('div');
+    card.className='ind-card'+(isW?' winner':'');
+    const tags=[];
+    if(def.genderTag)tags.push('<span class="ind-tag">성별 적용</span>');
+    if(def.timeTag)tags.push('<span class="ind-tag" style="background:#E1F5EE;color:#0F6E56;">시간 필요</span>');
+    // 아이콘 적용: 각 지표 그룹에 맞는 아이콘을 앞에 표시한다
+    card.innerHTML=`
+      <div class="ind-name"><img src="${ICON_MAP[def.group]}" class="ind-icon">${def.name}</div>
+      <div class="ind-bar-bg"><div class="ind-bar-fill" style="width:0%;background:${isW?'#7F77DD':def.color}" data-w="${s}"></div></div>
+      <div class="ind-bottom">
+        <span class="ind-score">${s}</span>
+        <div style="display:flex;gap:3px;">${isW?'<span style="font-size:9px;color:#534AB7;">★ 오늘</span>':''}${tags.join('')}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+  setTimeout(()=>{
+    grid.querySelectorAll('.ind-bar-fill').forEach(el=>{el.style.width=el.dataset.w+'%';});
+  },120);
+}
+
+function buildCalendar(bd){
+  const t=new Date();const y=t.getFullYear(),mo=t.getMonth();
+  const dim=new Date(y,mo+1,0).getDate();const fd=new Date(y,mo,1).getDay();
+  const grid=document.getElementById('cal-grid');grid.innerHTML='';
+  ['일','월','화','수','목','금','토'].forEach(d=>{
+    const c=document.createElement('div');c.className='cal-cell';
+    c.style.cssText='font-size:10px;color:var(--color-text-tertiary)';c.textContent=d;grid.appendChild(c);
+  });
+  for(let i=0;i<fd;i++)grid.appendChild(document.createElement('div'));
+  const birth=new Date(bd);
+  for(let day=1;day<=dim;day++){
+    const c=document.createElement('div');c.className='cal-cell';
+    const diff=Math.floor((new Date(y,mo,day)-birth)/86400000);
+    const emo=Math.sin(2*Math.PI*diff/28);
+    const isToday=day===t.getDate(),isPast=day<t.getDate();
+    if(isToday)c.classList.add('today');
+    else if(isPast)c.classList.add('past');
+    else if(emo>0.45)c.classList.add('good');
+    c.textContent=day;grid.appendChild(c);
+  }
+}
+
+function goMain(){
+  const bd=document.getElementById('birthdate').value||'1987-05-14';
+  const hasTime=document.getElementById('birthtime').value!=='';
+  const gender=selectedGender;
+  const t=new Date();
+  document.getElementById('today-date').textContent=`${t.getMonth()+1}월 ${t.getDate()}일`;
+
+  const bio=calcBio(bd);
+  const saju=calcSaju(bd,gender,hasTime);
+  // 기본 점수 계산
+  const scores={
+    ...bio,
+    star:calcStar(bd),
+    star28:calcStar28(bd),
+    lifepath:calcLifePath(bd),
+    tarot:calcTarot(bd),
+    moon:calcMoon(),
+    jeolgi:calcJeolgi(),
+    ddi:calcDdi(bd),
+    saju_il:saju.saju_il,
+    ...(saju.saju_si!==null?{saju_si:saju.saju_si}:{}),
+  };
+  // 추가 지표 계산: 금전운, 관계운, 황금 시간대, 행동 추천
+  scores.money = calcMoney(scores);
+  scores.relation = calcRelation(scores);
+  // 시간/행동 지표는 높은 순위에 압도하지 않도록 적당한 기본값을 사용한다
+  scores.time = 80;
+  scores.action = 75;
+  // 행운 시간과 추천 행동 계산
+  const luckyTime = getLuckyTime();
+  const actionRec = getAction();
+  // 동적으로 FORTUNE_MAP의 설명을 업데이트
+  FORTUNE_MAP.time.text = `오늘의 황금 시간대는 ${luckyTime}입니다. 그 시간에 중요한 일을 시작해보세요.`;
+  FORTUNE_MAP.action.text = `오늘은 ${actionRec.do}. 또한 ${actionRec.avoid}.`;
+
+  const validScores=Object.fromEntries(Object.entries(scores).filter(([,v])=>v!==null&&v!==undefined));
+  const count=Object.keys(validScores).length;
+  document.getElementById('ind-count-label').textContent=`— ${count}가지`;
+
+  const winnerId=Object.keys(validScores).reduce((a,b)=>validScores[a]>validScores[b]?a:b);
+  const chosen=FORTUNE_MAP[winnerId];
+  const animals=['🐱','🐻','🦊','🐼','🐶','🐰'];
+  document.getElementById('badge-text').textContent=chosen.badge;
+  document.getElementById('fortune-main').innerHTML=chosen.text.replace('\n','<br>');
+  document.getElementById('lucky-color').textContent=chosen.color;
+  document.getElementById('lucky-keyword').textContent=chosen.keyword;
+  document.getElementById('lucky-score').textContent=validScores[winnerId];
+  document.getElementById('animal-icon').textContent=animals[validScores[winnerId]%animals.length];
+
+  // 지표별 이미지 표시: 황금 시간대 혹은 행동 추천이 1위일 때 전용 이미지를 보여준다
+  const indicatorImg=document.getElementById('indicator-image');
+  const IMG_MAP={
+    time:'images/golden_time.png',
+    action:'images/action_rec.png'
+  };
+  if(IMG_MAP[winnerId]){
+    indicatorImg.src=IMG_MAP[winnerId];
+    indicatorImg.style.display='block';
+  }else{
+    indicatorImg.style.display='none';
+  }
+
+  buildIndicators(validScores,winnerId);
+  // 상위 3개 지표를 표시한다
+  const sorted=Object.keys(validScores).sort((a,b)=>validScores[b]-validScores[a]);
+  const top3=sorted.slice(0,3);
+  const topThreeEl=document.getElementById('top-three');
+  if(topThreeEl){
+    topThreeEl.innerHTML=top3.map((k,i)=>{
+      const ind=INDICATORS.find(item=>item.key===k);
+      const name=ind?ind.name:k;
+      return `<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${i+1}위: ${name}</span><span>${validScores[k]}</span></div>`;
+    }).join('');
+  }
+  buildCalendar(bd);
+  showScreen('screen-main');
+}
+
+function goGuide(){showScreen('screen-guide');}
+function goArchive(){showScreen('screen-archive');}
+function goOnboard(){showScreen('screen-onboard');}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
