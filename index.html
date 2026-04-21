@@ -36,9 +36,7 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
 /* Fortune card — fortune_bg.png → IMG_2574.png 로 변경 */
 .fortune-card{
   margin:0 14px;
-  background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('images/IMG_2574.png');
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(180deg,#F7F2FF 0%, #FFFFFF 100%);
   border-radius:20px;
   border:0.5px solid #ddd;
   padding:18px 18px 16px;
@@ -49,6 +47,7 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
 }
 .card-badge{font-size:11px;font-weight:500;padding:3px 11px;background:#EEEDFE;color:#534AB7;border-radius:99px;}
 .animal-circle{width:68px;height:68px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:30px;}
+.fortune-copy{width:100%;background:rgba(255,255,255,0.85);border:0.5px solid #e9e6ff;border-radius:12px;padding:10px 12px;}
 .fortune-text{font-size:14px;line-height:1.75;color:#111;text-align:center;}
 .lucky-items{width:100%;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;border-top:0.5px solid #ddd;padding-top:11px;}
 .lucky-pill{font-size:11px;padding:3px 9px;border-radius:99px;border:0.5px solid #ccc;color:#666;}
@@ -126,8 +125,16 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
 .archive-reaction{font-size:13px;}
 .archive-badge{font-size:10px;padding:2px 7px;border-radius:99px;background:#EEEDFE;color:#534AB7;flex-shrink:0;}
 
-/* indicator-image */
-#indicator-image{width:100%;border-radius:8px;margin-top:6px;display:none;}
+/* Dashboard */
+.dash-body{flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.dash-card{background:#fff;border:0.5px solid #eee;border-radius:10px;padding:12px;}
+.dash-title{font-size:13px;color:#666;margin-bottom:8px;}
+.dash-total{font-size:22px;font-weight:600;color:#111;}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.bar-label{width:60px;font-size:11px;color:#666;flex-shrink:0;}
+.bar-bg{flex:1;height:10px;background:#eee;border-radius:99px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:99px;}
+.bar-value{font-size:11px;color:#555;min-width:50px;text-align:right;}
 
 /* top-three */
 #top-three{width:100%;margin-top:6px;border-top:0.5px solid #ddd;padding-top:6px;}
@@ -178,14 +185,15 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
     <div class="fortune-card">
       <div class="card-badge" id="badge-text"></div>
       <div class="animal-circle" id="animal-icon">🐱</div>
-      <p class="fortune-text" id="fortune-main"></p>
+      <div class="fortune-copy">
+        <p class="fortune-text" id="fortune-main"></p>
+      </div>
       <div class="lucky-items">
         <div class="lucky-pill">행운의 색 <span id="lucky-color"></span></div>
         <div class="lucky-pill">키워드 <span id="lucky-keyword"></span></div>
         <div class="lucky-pill">최고 점수 <span id="lucky-score"></span></div>
       </div>
       <div id="top-three"></div>
-      <img id="indicator-image" alt="지표 이미지"/>
     </div>
     <div class="ind-section">
       <div class="section-row">
@@ -197,6 +205,7 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
     <div class="action-row">
       <button class="btn-action" onclick="alert('실제 앱에서는 카카오톡으로 공유돼요! 📲')">카카오톡 공유</button>
       <button class="btn-action" onclick="goArchive()">행운 아카이브</button>
+      <button class="btn-action" onclick="goDashboard()">관리자 대시보드</button>
     </div>
     <div class="cal-section">
       <p class="cal-title">이달의 좋은 날 <span style="font-size:10px;background:#EEEDFE;color:#534AB7;padding:2px 7px;border-radius:99px;margin-left:3px;">프리미엄</span></p>
@@ -426,14 +435,138 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
     </nav>
   </div>
 
+  <!-- ── DASHBOARD ── -->
+  <div class="screen" id="screen-dashboard">
+    <div class="status-bar"><span>9:41</span><span>100%</span></div>
+    <div class="guide-header">
+      <button class="guide-back" onclick="goMain()">‹</button>
+      <span class="guide-title">관리자 대시보드 (로컬)</span>
+    </div>
+    <div class="dash-body">
+      <div class="dash-card">
+        <p class="dash-title">전체 참여 횟수</p>
+        <p class="dash-total" id="dash-total">0회</p>
+        <p style="font-size:11px;color:#888;margin-top:6px;" id="dash-sync-status">Firebase 연동 꺼짐</p>
+      </div>
+      <div class="dash-card">
+        <p class="dash-title">성별 분포</p>
+        <div id="dash-gender"></div>
+      </div>
+      <div class="dash-card">
+        <p class="dash-title">연령대 분포</p>
+        <div id="dash-age"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 let selectedGender='male';
+const STORAGE_PROFILE_KEY='goodgood_profile_v1';
+const STORAGE_STATS_KEY='goodgood_stats_v1';
+const AGE_BUCKET_ORDER=['20세 미만','20~25세','26~30세','31~35세','36~40세','41~45세','46~50세','50세 이상'];
+const FIREBASE_CONFIG={
+  apiKey:'AIzaSyB6cGXUltgKfUa7RFSBRdQegd8fxJiyba8',
+  authDomain:'ggfortune-b7c17.firebaseapp.com',
+  projectId:'ggfortune-b7c17',
+};
+let firebaseReady=false;
+
+function isFirebaseEnabled(){
+  return !!(FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.authDomain&&FIREBASE_CONFIG.projectId);
+}
+
+function initFirebase(){
+  if(!isFirebaseEnabled())return;
+  if(!window.firebase)return;
+  if(firebase.apps&&firebase.apps.length===0){
+    firebase.initializeApp(FIREBASE_CONFIG);
+  }
+  firebaseReady=true;
+}
+
+async function syncEventToFirebase({gender,ageBucket,winnerId}){
+  if(!isFirebaseEnabled()||!firebaseReady)return;
+  try{
+    await firebase.firestore().collection('analytics_events').add({
+      gender,
+      ageBucket,
+      winnerId,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }catch(e){
+    console.warn('Firebase 전송 실패:',e);
+  }
+}
+
+function saveProfile(){
+  const profile={
+    birthdate:document.getElementById('birthdate').value||'1987-05-14',
+    birthtime:document.getElementById('birthtime').value||'',
+    gender:selectedGender
+  };
+  localStorage.setItem(STORAGE_PROFILE_KEY,JSON.stringify(profile));
+}
+
+function loadProfile(){
+  const raw=localStorage.getItem(STORAGE_PROFILE_KEY);
+  if(!raw)return;
+  try{
+    const profile=JSON.parse(raw);
+    if(profile.birthdate)document.getElementById('birthdate').value=profile.birthdate;
+    if(profile.birthtime!==undefined)document.getElementById('birthtime').value=profile.birthtime;
+    selectGender(profile.gender==='female'?'female':'male');
+  }catch(e){
+    console.warn('저장된 프로필을 불러오지 못했어요.');
+  }
+}
+
+function getAgeFromBirthdate(bd){
+  const birth=new Date(bd);
+  const today=new Date();
+  let age=today.getFullYear()-birth.getFullYear();
+  const m=today.getMonth()-birth.getMonth();
+  if(m<0||(m===0&&today.getDate()<birth.getDate()))age--;
+  return Math.max(age,0);
+}
+
+function getAgeBucket(age){
+  if(age<20)return '20세 미만';
+  if(age<=25)return '20~25세';
+  if(age<=30)return '26~30세';
+  if(age<=35)return '31~35세';
+  if(age<=40)return '36~40세';
+  if(age<=45)return '41~45세';
+  if(age<=50)return '46~50세';
+  return '50세 이상';
+}
+
+function saveStats(winnerId,bd,gender){
+  const raw=localStorage.getItem(STORAGE_STATS_KEY);
+  let stats={runCount:0,winnerCount:{},genderCount:{male:0,female:0},ageGroupCount:{}};
+  if(raw){
+    try{ stats=JSON.parse(raw); }catch(e){ stats={runCount:0,winnerCount:{},genderCount:{male:0,female:0},ageGroupCount:{}}; }
+  }
+  const age=getAgeFromBirthdate(bd);
+  const ageBucket=getAgeBucket(age);
+  stats.runCount=(stats.runCount||0)+1;
+  stats.winnerCount=stats.winnerCount||{};
+  stats.winnerCount[winnerId]=(stats.winnerCount[winnerId]||0)+1;
+  stats.genderCount=stats.genderCount||{male:0,female:0};
+  const g=gender==='female'?'female':'male';
+  stats.genderCount[g]=(stats.genderCount[g]||0)+1;
+  stats.ageGroupCount=stats.ageGroupCount||{};
+  stats.ageGroupCount[ageBucket]=(stats.ageGroupCount[ageBucket]||0)+1;
+  localStorage.setItem(STORAGE_STATS_KEY,JSON.stringify(stats));
+  syncEventToFirebase({gender:g,ageBucket,winnerId});
+}
+
 function selectGender(g){
   selectedGender=g;
   document.getElementById('btn-male').classList.toggle('sel',g==='male');
   document.getElementById('btn-female').classList.toggle('sel',g==='female');
+  saveProfile();
 }
 
 const INDICATORS=[
@@ -474,19 +607,7 @@ const FORTUNE_MAP={
   action:  {badge:'행동 추천',                 text:'',                                                                                                       color:'주황', keyword:'행동',  animal:'🎯'},
 };
 
-// 지표 그룹별 아이콘 매핑
-const ICON_MAP = {
-  1:'images/group1_icon.png',
-  2:'images/group2_icon.png',
-  3:'images/group3_icon.png',
-  4:'images/group4_icon.png'
-};
-
-// 황금시간대·행동추천 1위일 때 표시할 이미지 매핑
-const IMG_MAP = {
-  time:   'images/golden_time.png',
-  action: 'images/action_rec.png'
-};
+const GROUP_EMOJI={1:'🟣',2:'🟢',3:'🟠',4:'🔴'};
 
 function calcBio(bd){
   const days=Math.floor((new Date()-new Date(bd))/86400000);
@@ -586,7 +707,7 @@ function buildIndicators(scores,winnerId){
     if(def.genderTag)tags.push('<span class="ind-tag">성별 적용</span>');
     if(def.timeTag)tags.push('<span class="ind-tag" style="background:#E1F5EE;color:#0F6E56;">시간 필요</span>');
     card.innerHTML=`
-      <div class="ind-name"><img src="${ICON_MAP[def.group]}" class="ind-icon" alt="">${def.name}</div>
+      <div class="ind-name"><span aria-hidden="true">${GROUP_EMOJI[def.group]||'✨'}</span>${def.name}</div>
       <div class="ind-bar-bg"><div class="ind-bar-fill" style="width:0%;background:${isW?'#7F77DD':def.color}" data-w="${s}"></div></div>
       <div class="ind-bottom">
         <span class="ind-score">${s}</span>
@@ -597,6 +718,52 @@ function buildIndicators(scores,winnerId){
   setTimeout(()=>{
     grid.querySelectorAll('.ind-bar-fill').forEach(el=>{el.style.width=el.dataset.w+'%';});
   },120);
+}
+
+function buildBars(containerId,data,color){
+  const container=document.getElementById(containerId);
+  const entries=Object.entries(data||{});
+  if(entries.length===0){
+    container.innerHTML='<p style="font-size:12px;color:#999;">아직 데이터가 없어요.</p>';
+    return;
+  }
+  const max=Math.max(...entries.map(([,v])=>v),1);
+  container.innerHTML=entries.map(([label,value])=>{
+    const width=Math.round((value/max)*100);
+    return `<div class="bar-row">
+      <div class="bar-label">${label}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${width}%;background:${color};"></div></div>
+      <div class="bar-value">${value}건</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDashboard(){
+  const raw=localStorage.getItem(STORAGE_STATS_KEY);
+  if(!raw){
+    document.getElementById('dash-total').textContent='0회';
+    document.getElementById('dash-sync-status').textContent=isFirebaseEnabled()
+      ? (firebaseReady?'Firebase 연동 켜짐':'Firebase 초기화 대기')
+      : 'Firebase 연동 꺼짐';
+    buildBars('dash-gender',{},'#7F77DD');
+    buildBars('dash-age',{},'#319795');
+    return;
+  }
+  let stats;
+  try{ stats=JSON.parse(raw); }catch(e){ stats={runCount:0,genderCount:{},ageGroupCount:{}}; }
+  document.getElementById('dash-total').textContent=`${stats.runCount||0}회`;
+  buildBars('dash-gender',{
+    남성:(stats.genderCount&&stats.genderCount.male)||0,
+    여성:(stats.genderCount&&stats.genderCount.female)||0
+  },'#7F77DD');
+  const sortedAgeGroups={};
+  AGE_BUCKET_ORDER.forEach(label=>{
+    sortedAgeGroups[label]=(stats.ageGroupCount&&stats.ageGroupCount[label])||0;
+  });
+  buildBars('dash-age',sortedAgeGroups,'#319795');
+  document.getElementById('dash-sync-status').textContent=isFirebaseEnabled()
+    ? (firebaseReady?'Firebase 연동 켜짐':'Firebase 초기화 대기')
+    : 'Firebase 연동 꺼짐';
 }
 
 function buildCalendar(bd){
@@ -622,6 +789,7 @@ function buildCalendar(bd){
 }
 
 function goMain(){
+  saveProfile();
   const bd=document.getElementById('birthdate').value||'1987-05-14';
   const hasTime=document.getElementById('birthtime').value!=='';
   const gender=selectedGender;
@@ -664,15 +832,7 @@ function goMain(){
   document.getElementById('lucky-keyword').textContent=chosen.keyword;
   document.getElementById('lucky-score').textContent=validScores[winnerId];
   document.getElementById('animal-icon').textContent=chosen.animal;
-
-  // 황금시간대·행동추천이 1위일 때 전용 이미지 표시
-  const indicatorImg=document.getElementById('indicator-image');
-  if(IMG_MAP[winnerId]){
-    indicatorImg.src=IMG_MAP[winnerId];
-    indicatorImg.style.display='block';
-  }else{
-    indicatorImg.style.display='none';
-  }
+  saveStats(winnerId,bd,gender);
 
   // 상위 3개 지표 표시
   const sorted=Object.keys(validScores).sort((a,b)=>validScores[b]-validScores[a]);
@@ -693,10 +853,20 @@ function goMain(){
 function goGuide(){showScreen('screen-guide');}
 function goArchive(){showScreen('screen-archive');}
 function goOnboard(){showScreen('screen-onboard');}
+function goDashboard(){renderDashboard();showScreen('screen-dashboard');}
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
+
+document.addEventListener('DOMContentLoaded',()=>{
+  initFirebase();
+  loadProfile();
+  document.getElementById('birthdate').addEventListener('change',saveProfile);
+  document.getElementById('birthtime').addEventListener('change',saveProfile);
+});
 </script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </body>
 </html>
