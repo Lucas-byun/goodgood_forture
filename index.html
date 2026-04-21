@@ -36,9 +36,7 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
 /* Fortune card — fortune_bg.png → IMG_2574.png 로 변경 */
 .fortune-card{
   margin:0 14px;
-  background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('images/IMG_2574.png');
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(180deg,#F7F2FF 0%, #FFFFFF 100%);
   border-radius:20px;
   border:0.5px solid #ddd;
   padding:18px 18px 16px;
@@ -49,6 +47,7 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
 }
 .card-badge{font-size:11px;font-weight:500;padding:3px 11px;background:#EEEDFE;color:#534AB7;border-radius:99px;}
 .animal-circle{width:68px;height:68px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:30px;}
+.fortune-copy{width:100%;background:rgba(255,255,255,0.85);border:0.5px solid #e9e6ff;border-radius:12px;padding:10px 12px;}
 .fortune-text{font-size:14px;line-height:1.75;color:#111;text-align:center;}
 .lucky-items{width:100%;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;border-top:0.5px solid #ddd;padding-top:11px;}
 .lucky-pill{font-size:11px;padding:3px 9px;border-radius:99px;border:0.5px solid #ccc;color:#666;}
@@ -128,6 +127,7 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
 
 /* indicator-image */
 #indicator-image{width:100%;border-radius:8px;margin-top:6px;display:none;}
+.fortune-card.image-mode #top-three{display:none;}
 
 /* top-three */
 #top-three{width:100%;margin-top:6px;border-top:0.5px solid #ddd;padding-top:6px;}
@@ -178,7 +178,9 @@ input[type="date"],input[type="time"]{width:100%;padding:9px 12px;font-size:15px
     <div class="fortune-card">
       <div class="card-badge" id="badge-text"></div>
       <div class="animal-circle" id="animal-icon">🐱</div>
-      <p class="fortune-text" id="fortune-main"></p>
+      <div class="fortune-copy">
+        <p class="fortune-text" id="fortune-main"></p>
+      </div>
       <div class="lucky-items">
         <div class="lucky-pill">행운의 색 <span id="lucky-color"></span></div>
         <div class="lucky-pill">키워드 <span id="lucky-keyword"></span></div>
@@ -485,7 +487,21 @@ const ICON_MAP = {
 // 황금시간대·행동추천 1위일 때 표시할 이미지 매핑
 const IMG_MAP = {
   time:   'images/golden_time.png',
-  action: 'images/action_rec.png'
+  action: 'images/action_rec.png',
+  saju_il:'images/group1_icon.png',
+  saju_si:'images/group1_icon.png',
+  ddi:'images/group1_icon.png',
+  bio_emo:'images/group2_icon.png',
+  bio_phy:'images/group2_icon.png',
+  bio_int:'images/group2_icon.png',
+  star:'images/group3_icon.png',
+  star28:'images/group3_icon.png',
+  lifepath:'images/group3_icon.png',
+  tarot:'images/group3_icon.png',
+  moon:'images/group3_icon.png',
+  jeolgi:'images/group3_icon.png',
+  money:'images/group4_icon.png',
+  relation:'images/group4_icon.png'
 };
 
 function calcBio(bd){
@@ -667,11 +683,14 @@ function goMain(){
 
   // 황금시간대·행동추천이 1위일 때 전용 이미지 표시
   const indicatorImg=document.getElementById('indicator-image');
-  if(IMG_MAP[winnerId]){
-    indicatorImg.src=IMG_MAP[winnerId];
+  const matchedImg=IMG_MAP[winnerId];
+  if(matchedImg){
+    indicatorImg.src=matchedImg;
     indicatorImg.style.display='block';
+    document.querySelector('.fortune-card').classList.add('image-mode');
   }else{
     indicatorImg.style.display='none';
+    document.querySelector('.fortune-card').classList.remove('image-mode');
   }
 
   // 상위 3개 지표 표시
